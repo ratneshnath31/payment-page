@@ -1,4 +1,4 @@
-<h1 align="center"><img src="icon.png" alt="Nikaya Icon" width="20"/> Nikaya Health India – Payment Page</h1>
+<h1 Nikaya Health India – Payment Page</h1>
 
 Nikaya Health India – Payment Page
 This repository contains the implementation of the payment page for Nikaya Health India.
