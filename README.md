@@ -1,4 +1,4 @@
-                                        🏥Nikaya Health India – Payment Page
+                                        🏥Nikaya Health India
 
 This repository contains the implementation of the payment page for Nikaya Health India.
 It enables users to securely make payments for health services, packages, and wellness programs directly through our platform.
