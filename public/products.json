@@ -1,0 +1,12 @@
+[
+  { "id": 1, "name": "Wireless Earbuds", "price": 1, "image": "/images/wireless-earbuds.jpg" },
+  { "id": 2, "name": "Smart Watch", "price": 1, "image": "/images/smart-watch.jpg" },
+  { "id": 3, "name": "Bluetooth Speaker", "price": 1, "image": "/images/bluetooth-speaker.jpg" },
+  { "id": 4, "name": "Gaming Mouse", "price": 1, "image": "/images/gaming-mouse.jpg" },
+  { "id": 5, "name": "Mechanical Keyboard", "price": 1, "image": "/images/mechanical-keyboard.jpg" },
+  { "id": 6, "name": "Laptop Stand", "price": 1, "image": "/images/laptop-stand.jpg" },
+  { "id": 7, "name": "Wireless Charger", "price": 1, "image": "/images/wireless-charger.jpg" },
+  { "id": 8, "name": "Fitness Tracker", "price": 1, "image": "/images/fitness-tracker.jpg" },
+  { "id": 9, "name": "Power Bank", "price": 1, "image": "/images/power-bank.jpg" },
+  { "id": 10, "name": "Noise Cancelling Headphones", "price": 1, "image": "/images/noise-cancelling-headphones.jpg" }
+]

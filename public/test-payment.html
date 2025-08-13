@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Razorpay</title>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+  <h1>Test Razorpay Payment</h1>
+  <button id="pay-btn">Pay ₹1</button>
+
+  <script>
+    document.getElementById("pay-btn").addEventListener("click", async () => {
+      const orderRes = await fetch("/create-order", { method: "POST" });
+      const order = await orderRes.json();
+      console.log("Order Response:", order);
+
+      const options = {
+        key: "rzp_test_HLbPy3MfUdKxkk",  // <-- Only the Test Key ID (starts with rzp_test_)
+        amount: order.amount,
+        currency: "INR",
+        name: "MyShop Test",
+        description: "Test Payment",
+        order_id: order.id,  // <-- Critical
+        handler: function (response) {
+          alert("Payment Successful! Payment ID: " + response.razorpay_payment_id);
+        },
+        prefill: { name: "Test User", email: "test@example.com", contact: "9999999999" },
+        theme: { color: "#3399cc" }
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.open();
+    });
+  </script>
+</body>
+</html>

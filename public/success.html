@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Successful</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-green-50 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded shadow max-w-2xl w-full">
+        <svg class="w-16 h-16 text-green-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12l2 2l4 -4m6 2a9 9 0 11-18 0a9 9 0 0118 0z"/>
+        </svg>
+        <h1 class="text-3xl font-bold text-green-700 mb-4 text-center">Payment Successful!</h1>
+        <p class="text-gray-600 text-center mb-6">Your order has been placed successfully. Here are the details:</p>
+
+        <!-- Order Details -->
+        <div id="order-details" class="mb-6"></div>
+
+        <div class="text-center">
+            <a href="products.html" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Continue Shopping</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const orderSummary = JSON.parse(localStorage.getItem('orderSummary'));
+            const container = document.getElementById('order-details');
+
+            if (!orderSummary) {
+                container.innerHTML = "<p class='text-center text-gray-500'>No order details found.</p>";
+                return;
+            }
+
+            let html = `
+                <p class="text-lg font-semibold">Payment ID: ${orderSummary.razorpay_payment_id}</p>
+                <h2 class="text-xl font-bold mt-4 mb-2">Items Ordered:</h2>
+                <ul class="divide-y divide-gray-200">
+            `;
+            orderSummary.items.forEach(item => {
+                html += `
+                    <li class="py-2 flex justify-between">
+                        <span>${item.name} (x${item.quantity})</span>
+                        <span>₹${item.price * item.quantity}</span>
+                    </li>
+                `;
+            });
+            html += `</ul>
+                <p class="text-right text-xl font-bold mt-4">Total: ₹${orderSummary.total}</p>
+            `;
+            container.innerHTML = html;
+            localStorage.removeItem('orderSummary'); // Clear after displaying
+        });
+    </script>
+</body>
+</html>

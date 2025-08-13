@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GCash Payment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen">
+    <div class="bg-white shadow-lg rounded-lg flex overflow-hidden max-w-4xl w-full">
+        <!-- Left Side (Product Summary) -->
+        <div class="bg-blue-600 text-white w-1/2 p-10 flex flex-col justify-center">
+            <img src="https://images.unsplash.com/photo-1606813902912-6bfa8534e6d4?auto=format&fit=crop&w=400&q=80" 
+                 alt="Wireless Earbuds" class="rounded-lg shadow-lg mb-6">
+            <h2 class="text-3xl font-bold mb-2">Wireless Bluetooth Earbuds</h2>
+            <p class="text-lg mb-6">
+                High-quality sound, noise-canceling, and up to 24 hours of playtime. 
+                Perfect for music lovers on the go.
+            </p>
+            <p class="text-2xl font-semibold">₱500</p>
+        </div>
+
+        <!-- Right Side (Form) -->
+        <div class="w-1/2 p-10">
+            <h1 class="text-2xl font-bold text-center mb-6 text-blue-600">Pay with GCash</h1>
+            <form id="checkoutForm" class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 font-medium">Amount (PHP):</label>
+                    <input type="number" id="amount" value="500" required
+                        class="w-full mt-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium">Description:</label>
+                    <input type="text" id="description" value="Wireless Bluetooth Earbuds" readonly
+                        class="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-100 text-gray-600">
+                </div>
+                <button type="submit"
+                    class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+                    Pay Now
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("checkoutForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const amount = document.getElementById("amount").value;
+            const description = document.getElementById("description").value;
+
+            const response = await fetch("/pay", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ amount, description })
+            });
+
+            const data = await response.json();
+            if (data.checkout_url) {
+                window.location.href = data.checkout_url;
+            } else {
+                alert("Payment creation failed!");
+            }
+        });
+    </script>
+</body>
+</html>

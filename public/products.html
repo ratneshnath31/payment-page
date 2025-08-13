@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Products</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes pop { 0%{transform:scale(1);} 50%{transform:scale(1.3);} 100%{transform:scale(1);} }
+    .pop { animation: pop 0.3s ease; }
+  </style>
+</head>
+<body class="bg-gray-100">
+<!-- Header with Cart -->
+<header class="bg-white shadow p-4 flex justify-between items-center relative">
+    <h1 class="text-2xl font-bold text-blue-600">
+        <a href="products.html"><img src="assets/nikaya-logo.png" alt="Nikaya Health Logo"
+       class="h-10 w-auto inline-block align-middle"/></a>
+    </h1>
+  <div class="flex items-center space-x-4">
+      <!-- Profile link -->
+  <div class="relative group inline-block">
+  <a id="user-greeting" href="profile.html" class="flex items-center space-x-2">
+    <img id="header-profile-pic" src="https://via.placeholder.com/40" alt="User"
+         class="w-8 h-8 rounded-full border-2 border-blue-400 object-cover profile-photo cursor-pointer">
+  </a>
+
+  <!-- Dropdown Menu (hidden by default) -->
+  <div id="profile-dropdown" class="hidden absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg z-50 group-hover:block">
+    <a href="orders.html"
+      class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium">My Orders</a>
+    <!-- You can add more options here if needed -->
+  </div>
+</div>
+
+
+      <!-- Login Button -->
+      <a href="login.html" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors">
+          Login
+      </a>
+
+      <div class="relative group">
+          <!-- Cart Icon -->
+          <a href="cart.html" class="relative inline-block">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9h12l-2-9M9 21h6" />
+              </svg>
+              <span id="cart-count"
+                  class="absolute -top-2 -right-2 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
+                  0
+              </span>
+          </a>
+
+          <!-- Mini Cart Dropdown -->
+          <div id="mini-cart" class="hidden group-hover:block absolute right-0 mt-2 w-72 bg-white border rounded-lg shadow-lg z-50">
+              <div id="mini-cart-items" class="max-h-64 overflow-y-auto p-4 space-y-3">
+                  <p class="text-gray-500 text-center">Your cart is empty.</p>
+              </div>
+              <div class="border-t p-4 flex justify-between space-x-2">
+                  <a href="cart.html" class="w-1/2 text-center bg-gray-200 hover:bg-gray-300 rounded py-2 text-sm font-medium">View Cart</a>
+                  <a href="checkout.html" class="w-1/2 text-center bg-green-600 hover:bg-green-700 text-white rounded py-2 text-sm font-medium">Checkout</a>
+              </div>
+          </div>
+      </div>
+    </div>
+</header>
+
+<div class="max-w-6xl mx-auto py-8">
+  <h2 class="text-3xl font-bold text-center mb-8">Products</h2>
+  <div id="product-list" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // 🔹 Load updated profile picture in header
+  const currentUser = localStorage.getItem('currentUser');
+  const globalPic = localStorage.getItem('currentProfilePic'); // global latest
+  const defaultIcon = "https://via.placeholder.com/40";
+  const perUserPic = currentUser ? localStorage.getItem(`profilePic_${currentUser}`) : null;
+  const headerPicEl = document.getElementById('header-profile-pic');
+
+  if (headerPicEl) {
+    headerPicEl.src = perUserPic ? perUserPic : defaultIcon;
+  }
+
+  function getCart() {
+    const userKey = localStorage.getItem('currentUser');
+    return userKey ? (JSON.parse(localStorage.getItem(`cart_${userKey}`)) || []) : [];
+  }
+  function saveCart(cart) {
+    const userKey = localStorage.getItem('currentUser');
+    if (userKey) {
+      localStorage.setItem(`cart_${userKey}`, JSON.stringify(cart));
+    }
+  }
+  function updateCartCount(animate=false) {
+    let cart = getCart();
+    let count = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    const el = document.getElementById('cart-count');
+    el.innerText = count;
+    if (animate) {
+      el.classList.add('pop');
+      setTimeout(() => el.classList.remove('pop'), 300);
+    }
+    loadMiniCart();
+  }
+  window.addToCart = function (id, name, price, image) {
+    const userKey = localStorage.getItem('currentUser');
+    if (!userKey) {
+      alert("Please login to add items to your cart.");
+      window.location.href = "login.html";
+      return;
+    }
+    let cart = getCart();
+    let existing = cart.find(item => item.id === id);
+    if (existing) existing.quantity = (existing.quantity || 1) + 1;
+    else cart.push({ id, name, price, image, quantity: 1 });
+    saveCart(cart);
+    updateCartCount(true);
+  };
+
+  async function loadProducts() {
+    const res = await fetch('/products.json');
+    const products = await res.json();
+    const list = document.getElementById("product-list");
+    products.forEach(product => {
+      const div = document.createElement("div");
+      div.className = "bg-white shadow rounded-lg p-4 text-center";
+      div.innerHTML = `
+        <img src="${product.image}" class="w-full h-40 object-cover rounded mb-4">
+        <h2 class="text-xl font-semibold mb-2">${product.name}</h2>
+        <p class="text-lg font-bold mb-4">₹${product.price}</p>
+        <button onclick="addToCart(${product.id}, '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${product.image}')"
+          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Add to Cart</button>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  function loadMiniCart() {
+    let cart = getCart();
+    const div = document.getElementById("mini-cart-items");
+    if (cart.length === 0) {
+      div.innerHTML = "<p class='text-gray-500 text-center'>Your cart is empty.</p>";
+      return;
+    }
+    let html = "", total = 0;
+    cart.forEach(item => {
+      let subtotal = item.price * (item.quantity || 1); total += subtotal;
+      html += `<div class="flex items-center justify-between">
+        <img src="${item.image}" class="w-12 h-12 object-cover rounded">
+        <div class="flex-1 ml-3">
+          <p class="text-sm font-medium">${item.name}</p>
+          <p class="text-xs text-gray-500">Qty: ${item.quantity || 1}</p>
+        </div>
+        <p class="text-sm font-semibold">₹${subtotal}</p>
+      </div>`;
+    });
+    html += `<div class="border-t mt-2 pt-2 text-right text-sm font-semibold">Subtotal: ₹${total}</div>`;
+    div.innerHTML = html;
+  }
+
+  // Cart dropdown behaviour
+  document.addEventListener("click", (e) => {
+    const cartIcon = document.querySelector(".group > a[href='cart.html']");
+    const miniCart = document.getElementById("mini-cart");
+    if (cartIcon && cartIcon.contains(e.target)) {
+      miniCart.classList.toggle("hidden");
+    } else if (miniCart && !miniCart.contains(e.target)) {
+      miniCart.classList.add("hidden");
+    }
+  });
+
+  loadProducts();
+  updateCartCount();
+});
+</script>
+
+<!-- Contact Location Section -->
+<!-- Contact and Appointment Section (matches screenshot) -->
+<section class="bg-white border-t border-gray-200 mt-16 pb-10 pt-8">
+  <div class="max-w-4xl mx-auto flex flex-col md:flex-row gap-10 px-4">
+
+    <!-- Contact Info / Map -->
+    <div class="md:w-[45%] w-full flex flex-col gap-6">
+      <div class="rounded-xl overflow-hidden border border-gray-200 shadow">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3303.9246719877587!2d-118.25465498493422!3d34.153111380581266!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2c01f49372b07%3A0x7a1000f1b35fedc5!2s701%20N%20Brand%20Blvd%20%23820%2C%20Glendale%2C%20CA%2091203%2C%20USA!5e0!3m2!1sen!2sin!4v1685214017707!5m2!1sen!2sin"
+          width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+      <div class="space-y-4 mt-2 text-sm">
+        <div class="flex items-center gap-3">
+          <span class="bg-blue-100 rounded-full p-2">
+            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2"
+              viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round"
+              d="M17.657 16.657L13 21.314V10a8 8 0 1 0-8 8h11.314z"/></svg>
+          </span>
+          <span>
+            <span class="font-bold">Location:</span>
+            <br>701 N Brand Blvd #820, Glendale, CA 91203
+          </span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="bg-blue-100 rounded-full p-2">
+            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2"
+              viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round"
+              d="M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0zm6 8v-1a4 4 0 0 0-3-3.87"/></svg>
+          </span>
+          <span>
+            <span class="font-bold">Email:</span>
+            <br><a href="mailto:support@nikayahealth.com" class="text-blue-600 hover:underline">support@nikayahealth.com</a>
+          </span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="bg-blue-100 rounded-full p-2">
+            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2"
+              viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 10a9 9 0 0 1 18 0c0 5.25-4.5 9-9 9s-9-3.75-9-9zm9-4.5v1.5"/></svg>
+          </span>
+          <span>
+            <span class="font-bold">Call:</span>
+            <br><a href="tel:+13236804068" class="text-blue-600 hover:underline">+1 (323) 680-4068</a>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Appointment Form (right side) -->
+    <div class="md:w-[55%] w-full">
+      <form class="bg-white rounded-xl p-6 border border-blue-100 shadow-md space-y-4">
+        <div class="flex flex-col md:flex-row gap-3">
+          <input type="text" placeholder="Your Name" class="w-full border-2 border-gray-200 rounded p-2 text-sm" />
+          <input type="email" placeholder="Your Email" class="w-full border-2 border-gray-200 rounded p-2 text-sm" />
+          <input type="text" placeholder="Your Phone" class="w-full border-2 border-gray-200 rounded p-2 text-sm" />
+        </div>
+        <input type="date" placeholder="Appointment Date" class="w-full border-2 border-gray-200 rounded p-2 text-sm" />
+        <textarea placeholder="Message (Optional)" class="w-full border-2 border-gray-200 rounded p-2 text-sm" rows="3"></textarea>
+        <button type="submit"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-semibold block mx-auto transition">
+          Make an Appointment
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+
+
+
+
+<!-- Footer Section -->
+<footer class="bg-white mt-16 pt-10 pb-6 border-t">
+  <div class="max-w-6xl mx-auto grid md:grid-cols-4 gap-12 px-4">
+
+    <!-- Nikaya Health Address/Contact -->
+    <div>
+      <h2 class="font-bold text-lg text-blue-700 mb-3">Nikaya Health</h2>
+      <p>701 Brand Blvd Suite 820<br>Glendale, CA 91203<br>United States</p>
+      <p class="mt-2"><span class="font-semibold">Phone:</span> <a href="tel:+13236804068" class="text-blue-600">+1 (323) 680-4068</a></p>
+      <p><span class="font-semibold">Email:</span> <a href="mailto:support@nikayahealth.com" class="text-blue-600">support@nikayahealth.com</a></p>
+    </div>
+
+    <!-- Useful Links -->
+    <div>
+      <h2 class="font-bold mb-3">Useful Links</h2>
+      <ul class="space-y-2">
+        <li><a href="index.html" class="text-blue-600 hover:underline">Home</a></li>
+        <li><a href="about.html" class="text-blue-600 hover:underline">About us</a></li>
+        <li><a href="services.html" class="text-blue-600 hover:underline">Services</a></li>
+        <li><a href="terms.html" class="text-blue-600 hover:underline">Terms of service</a></li>
+        <li><a href="privacy.html" class="text-blue-600 hover:underline">Privacy policy</a></li>
+      </ul>
+    </div>
+
+    <!-- Our Services -->
+    <div>
+      <h2 class="font-bold mb-3">Our Services</h2>
+      <ul class="space-y-2">
+        <li><a href="#" class="text-blue-600 hover:underline">Web Design</a></li>
+        <li><a href="#" class="text-blue-600 hover:underline">Web Development</a></li>
+        <li><a href="#" class="text-blue-600 hover:underline">Product Management</a></li>
+        <li><a href="#" class="text-blue-600 hover:underline">Marketing</a></li>
+        <li><a href="#" class="text-blue-600 hover:underline">Graphic Design</a></li>
+      </ul>
+    </div>
+
+    <!-- Social Links -->
+    <div class="flex items-start gap-4 md:justify-end">
+      <a href="#" class="rounded-full p-2 bg-blue-500 text-white"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M22 4.84c-.81.36-1.67.61-2.58.72a4.52 4.52 0 0 0 2-2.5c-.88.52-1.86.9-2.9 1.1A4.51 4.51 0 0 0 12 8.88c0 .36.04.71.12 1.04C7.7 9.71 4.13 7.87 1.67 5.17c-.4.69-.63 1.5-.63 2.38 0 1.65.83 3.12 2.1 3.98-.77-.03-1.49-.23-2.13-.58v.06c0 2.3 1.62 4.22 3.77 4.66-.39.1-.8.16-1.22.16-.3 0-.59-.03-.87-.08.59 1.84 2.3 3.17 4.33 3.21A9.05 9.05 0 0 1 2 20.07a12.79 12.79 0 0 0 6.92 2.03c8.3 0 12.85-6.88 12.85-12.85 0-.2 0-.41-.02-.61A9.13 9.13 0 0 0 24 4.59z"/></svg></a>
+      <a href="#" class="rounded-full p-2 bg-blue-500 text-white"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.04c-5.49 0-9.96 4.45-9.96 9.95 0 4.41 2.85 8.15 6.88 9.47.5.09.67-.22.67-.48v-1.69c-2.79.61-3.37-1.21-3.37-1.21-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1.01.07 1.54 1.03 1.54 1.03 .89 1.54 2.34 1.09 2.91.84.09-.64.35-1.09.63-1.34-2.23-.25-4.57-1.11-4.57-4.93 0-1.09.39-1.98 1.03-2.68-.1-.25-.44-1.28.1-2.66 0 0 .84-.27 2.75 1.03a9.53 9.53 0 0 1 5 0c1.9-1.3 2.73-1.03 2.73-1.03 .54 1.38.2 2.41.1 2.66.64.7 1.03 1.59 1.03 2.68 0 3.83-2.34 4.68-4.58 4.93.36.32.68.95.68 1.92v2.85c0 .27.17.58.68.48C19.13 20.13 22 16.4 22 11.99c0-5.5-4.47-9.95-9.96-9.95z"/></svg></a>
+      <a href="#" class="rounded-full p-2 bg-blue-500 text-white"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="4"/><path d="M20 21.08V21c0-2.21-3.58-3.19-8-3.19S4 18.79 4 21v.08c0 .45.54.84 1.28.96 2.24.29 4.69.44 6.71.44s4.47-.15 6.71-.44c.74-.12 1.28-.51 1.28-.96z"/></svg></a>
+      <a href="#" class="rounded-full p-2 bg-blue-500 text-white"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M6.5 8.5h2A1.5 1.5 0 0 1 10 10v6a1.5 1.5 0 0 1-1.5 1.5h-2A1.5 1.5 0 0 1 5 16v-6A1.5 1.5 0 0 1 6.5 8.5zm0 0V7a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 11.5 7v1.5"/><circle cx="16.5" cy="15.5" r="3"/> </svg></a>
+    </div>
+  </div>
+
+  <!-- Copyright and Designer Info -->
+  <div class="border-t mt-8 pt-6 text-center text-gray-500 text-sm">
+    © Copyright <span class="font-bold text-gray-700">Nikaya Health</span>. All Rights Reserved<br>
+    Designed by BootstrapMade
+  </div>
+</footer>
+
+
+<script src="user-greeting.js"></script>
+<script src="logout.js"></script>
+</body>
+</html>
