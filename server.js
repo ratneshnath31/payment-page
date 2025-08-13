@@ -182,6 +182,14 @@ app.post("/create-order", async (req, res) => {
 
   try {
     const order = await razorpay.orders.create(options);
+
+        // Format the created_at timestamp
+        function formatTimestamp(unixSeconds) {
+            const date = new Date(unixSeconds * 1000);
+            return date.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+        }
+        order.created_at_formatted = formatTimestamp(order.created_at);
+
     console.log("Order Created:", order);
     res.json(order);
   } catch (error) {
