@@ -1,3 +1,4 @@
+// require('dotenv').config();
 const express = require("express");
 const Razorpay = require("razorpay");
 const bodyParser = require("body-parser");
@@ -5,7 +6,10 @@ const path = require("path");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const sql = require("mssql");
+// const serverless = require("serverless-http");
 require("dotenv").config();
+// const path = require('path');
+// require('dotenv').config({ path: path.resolve(__dirname, '.env') }); // Explicit path
 
 const app = express();
 app.use(bodyParser.json());
@@ -205,7 +209,9 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-app.listen(3000, () => console.log("Server running on http://localhost:3000"));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
 
 
 //there is no authentication for the create-order endpoint, you can add it if needed. just add the authenticateToken middleware to the route like this:

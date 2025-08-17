@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Your Cart | Nikaya Health</title>
+    <title>Notifications | Nikaya Health</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -31,8 +31,8 @@
     <!-- Header -->
     <header class="bg-white shadow p-4 flex justify-between items-center sticky top-0 z-10">
         <h1 class="text-2xl font-bold text-blue-600">
-        <a href="products.html"><img src="assets/nikaya-logo.png" alt="Nikaya Health Logo"
-       class="h-10 w-auto inline-block align-middle"/></a>
+            <a href="products.html"><img src="assets/nikaya-logo.png" alt="Nikaya Health Logo"
+           class="h-10 w-auto inline-block align-middle"/></a>
         </h1>
         
         <div class="flex items-center space-x-4">
@@ -56,13 +56,12 @@
                     </svg>
                     Profile
                   </a>
-                              <a href="wishlist.html" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium">
-              <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-              </svg>
-              Wishlist
-              <span id="wishlist-count" class="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">0</span>
-            </a>
+                  <a href="wishlist.html" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                    Wishlist
+                  </a>
                   <a href="orders.html" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-medium">
                     <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -96,141 +95,33 @@
         </div>
     </header>
 
-    <!-- Cart Container -->
-    <main class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow mt-10">
+    <!-- Notifications Container -->
+    <main class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow mt-10">
         <h2 class="text-3xl font-bold mb-8 text-gray-800 flex items-center gap-2">
-            <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9h12l-2-9M9 21h6"/>
+            <svg class="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-5 5v-5zM4.19 4.19A2 2 0 004 6v10a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v10a2 2 0 01-2-2V6a2 2 0 012-2z"></path>
             </svg>
-            Your Cart
+            Notifications
         </h2>
-        <div id="cart-items" class="divide-y divide-gray-200"></div>
-        <div class="mt-8 flex flex-col md:flex-row md:justify-end md:items-center gap-4">
-            <p class="text-xl font-bold text-gray-700">Total: ₹<span id="cart-total">0</span></p>
-        </div>
-        <div class="mt-8 text-right" id="checkout-section">
-            <!-- Checkout button will be rendered here -->
+        <div id="notifications-list" class="space-y-4">
+            <!-- Notifications will be loaded here -->
         </div>
     </main>
 
     <script>
-function getCart() {
-    const userKey = localStorage.getItem('currentUser');
-    return JSON.parse(localStorage.getItem(`cart_${userKey}`)) || [];
-}
-function saveCart(cart) {
-    const userKey = localStorage.getItem('currentUser');
-    localStorage.setItem(`cart_${userKey}`, JSON.stringify(cart));
-}
-function updateCartCount() {
-    let cart = getCart();
-    let count = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
-    document.getElementById('cart-count').innerText = count;
-}
+        document.addEventListener("DOMContentLoaded", () => {
+            const userNameEl = document.getElementById('user-name');
+            if (userNameEl) {
+                userNameEl.textContent = 'Ratnesh';
+            }
 
-function updateWishlistCount() {
-    const currentUser = localStorage.getItem('currentUser');
-    if (currentUser) {
-        const wishlist = JSON.parse(localStorage.getItem(`wishlist_${currentUser}`)) || [];
-        const wishlistCountEl = document.getElementById('wishlist-count');
-        if (wishlistCountEl) {
-            wishlistCountEl.textContent = wishlist.length;
-        }
-    }
-}
-function loadCart() {
-    let cart = getCart();
-    const container = document.getElementById("cart-items");
-    const totalEl = document.getElementById("cart-total");
-    const checkoutSection = document.getElementById("checkout-section");
-
-    if (cart.length === 0) {
-        container.innerHTML = `
-            <div class="flex flex-col items-center justify-center py-16">
-                <svg class="w-20 h-20 text-gray-300 mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9h12l-2-9M9 21h6"/>
-                </svg>
-                <p class="text-gray-500 text-lg mb-2">Your cart is empty.</p>
-                <a href="products.html" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">Continue Shopping</a>
-            </div>
-        `;
-        totalEl.textContent = 0;
-        checkoutSection.innerHTML = "";
-        updateCartCount();
-        return;
-    }
-
-    let total = 0;
-    container.innerHTML = cart.map((item, index) => {
-        let subtotal = item.price * (item.quantity || 1);
-        total += subtotal;
-        return `
-            <div class="flex flex-col md:flex-row items-center justify-between py-6">
-                <div class="flex items-center gap-4 w-full md:w-auto">
-                    <img src="${item.image}" class="w-20 h-20 object-cover rounded shadow" alt="${item.name}">
-                    <div>
-                        <p class="text-lg font-semibold text-gray-800">${item.name}</p>
-                        <p class="text-gray-500 text-sm">₹${item.price}</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2 mt-4 md:mt-0">
-                    <button onclick="updateQuantity(${index}, -1)" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 text-lg font-bold">-</button>
-                    <span class="px-4 text-lg">${item.quantity || 1}</span>
-                    <button onclick="updateQuantity(${index}, 1)" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 text-lg font-bold">+</button>
-                </div>
-                <p class="w-24 text-right text-lg font-semibold text-gray-700 mt-4 md:mt-0">₹${subtotal}</p>
-                <button onclick="removeItem(${index})" class="text-red-600 hover:underline ml-4 mt-4 md:mt-0">Remove</button>
-            </div>
-        `;
-    }).join("");
-
-    totalEl.textContent = total;
-    saveCart(cart);
-    updateCartCount();
-
-    // Show checkout button only if cart is not empty
-    checkoutSection.innerHTML = `
-        <a href="checkout.html" class="bg-green-600 text-white px-8 py-3 rounded-lg text-lg font-semibold shadow hover:bg-green-700 transition">Proceed to Checkout</a>
-    `;
-}
-
-function updateQuantity(index, change) {
-    let cart = getCart();
-    if (!cart[index]) return;
-
-    cart[index].quantity = (cart[index].quantity || 1) + change;
-    if (cart[index].quantity <= 0) cart.splice(index, 1);
-
-    saveCart(cart);
-    loadCart();
-}
-
-function removeItem(index) {
-    let cart = getCart();
-    cart.splice(index, 1);
-    saveCart(cart);
-    loadCart();
-}
-
-            loadCart();
-            updateCartCount();
-            updateWishlistCount();
-
-// Set user name and add logout functionality
-document.addEventListener("DOMContentLoaded", () => {
-  const userNameEl = document.getElementById('user-name');
-  if (userNameEl) {
-    userNameEl.textContent = 'Ratnesh';
-  }
-
-              // Add logout functionality
+            // Add logout functionality
             const logoutBtn = document.getElementById('logout-btn');
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', () => {
                     localStorage.removeItem('currentUser');
                     localStorage.removeItem('token');
                     localStorage.removeItem('profilePic');
-                    if (typeof updateCartCount === "function") updateCartCount();
                     window.location.href = 'login.html';
                 });
             }
@@ -262,9 +153,36 @@ document.addEventListener("DOMContentLoaded", () => {
                     }, 150);
                 });
             }
+
+            // Load notifications (placeholder for now)
+            const notificationsContainer = document.getElementById('notifications-list');
+            notificationsContainer.innerHTML = `
+                <div class="text-center py-16">
+                    <svg class="w-20 h-20 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-5 5v-5zM4.19 4.19A2 2 0 004 6v10a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v10a2 2 0 01-2-2V6a2 2 0 012-2z"></path>
+                    </svg>
+                    <p class="text-gray-500 text-lg mb-2">No notifications yet.</p>
+                    <p class="text-gray-400 text-sm">We'll notify you about important updates, orders, and offers.</p>
+                </div>
+            `;
+
+            // Update cart count when page loads
+            updateCartCount();
         });
+
+        function updateCartCount() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                const cart = JSON.parse(localStorage.getItem(`cart_${currentUser}`)) || [];
+                const count = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+                const cartCountEl = document.getElementById('cart-count');
+                if (cartCountEl) {
+                    cartCountEl.textContent = count;
+                }
+            }
+        }
     </script>
-<script src="user-greeting.js"></script>
-<script src="logout.js"></script>
+    <script src="user-greeting.js"></script>
+    <script src="logout.js"></script>
 </body>
 </html>
